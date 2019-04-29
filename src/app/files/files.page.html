@@ -1,9 +1,18 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
-    <ion-title>files</ion-title>
+    <ion-title>Ваши файлы</ion-title>
+
+    <ion-buttons slot="secondary">
+      <ion-button fill="clear" shape="round">
+        <ion-icon name="contact" size="large"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" shape="round">
+        <ion-icon name="log-out" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -18,6 +27,9 @@
   <ion-list>
     <ion-item-sliding *ngFor="let file of files">
       <ion-item>
+        <div slot="start">
+          <ion-icon name="document" size="large"></ion-icon>
+        </div>
         <ion-label>
           <h2>
             {{file.filename}}

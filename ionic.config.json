@@ -1,5 +1,7 @@
 {
   "name": "vlada",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

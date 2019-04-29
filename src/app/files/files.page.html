@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>files</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openFile()">
+      <input id="file" type="file" multiple hidden (change)="uploadFile($event)" />
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  
+  <ion-list>
+    <ion-item-sliding *ngFor="let file of files">
+      <ion-item>
+        <ion-label>
+          <h2>
+            {{file.filename}}
+          </h2>
+          <p>
+            {{file.status}}
+          </p>
+        </ion-label>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="remove(file)">Удалить</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

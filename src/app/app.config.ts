@@ -5,5 +5,6 @@ import { Injectable } from '@angular/core';
 })
 
 export class AppConfig {
-    name = "Typograph.io";
+    name = 'Typograph.io';
+    apiUrl = 'http://localhost/vlada-api/?';
 }

@@ -7,6 +7,4 @@ export class UserModel {
     avatar: string;
     rule: string;
     email: string;
-
-    constructor() {}
 }

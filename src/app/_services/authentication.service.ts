@@ -39,7 +39,6 @@ export class AuthenticationService {
                     this.sessionSubject.next(session);
 
                     this.route.queryParams.subscribe(params => {
-                        console.log(params);
                         if (params.returnUrl) {
                             this.router.navigateByUrl(params.returnUrl);
                         } else {

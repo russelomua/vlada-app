@@ -23,7 +23,6 @@ export class LoginPage {
 
   login() {
     this.auth.login(this.loginForm).subscribe(_ => {}, error => {
-      console.log(error);
       this.toast.show(error);
     });
   }

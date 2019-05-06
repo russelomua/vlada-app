@@ -3,6 +3,7 @@ import { FileModel } from '../_models/file';
 import { File } from '@ionic-native/file/ngx';
 
 import { ToastService, FilesService, AuthenticationService } from '../_services';
+import { tap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -18,50 +19,60 @@ export class HomePage implements OnInit {
     public auth: AuthenticationService
   ) {}
 
-  remove(file: FileModel) {
-    const index = this.files.indexOf(file);
-    if (index >= 0) {
-      this.files.splice(index, 1);
-    }
+  ngOnInit() {
+    this.loadFiles();
   }
+
   openFile() {
     document.getElementById('file').click();
   }
 
-  loadFiles(event?) {
-    const Files = this.filesService.getAll();
-    Files.subscribe(files => {
-      this.files = files;
+  loadFiles() {
+    this.filesService.getAll().subscribe();
+  }
 
-      if (typeof event !== 'undefined') {
-        event.target.complete();
-      }
-    }, error => {
-      console.log(error);
-      if (typeof event !== 'undefined') {
-        event.target.error();
-      }
+  getFiles() {
+    return this.filesService.files;
+  }
+
+  getUploads() {
+    return this.filesService.uploading;
+  }
+
+  refreshFiles(event) {
+    this.filesService.getAll().subscribe(() => {
+      event.target.complete();
+    }, () => {
+      event.target.error();
     });
   }
 
-  async uploadFile(event) {
+  uploadFiles(event) {
     const files = event.target.files;
 
-    this.toastService.show('Загружаю ' + files.length + ' файл(ов)');
+    if (files.length == 0){
+      return;
+    }
+
+    // this.toastService.show('Загружаю ' + files.length + ' файл(ов)');
 
     for (const file of files) {
-      // let path = await this.file.resolveLocalFilesystemUrl(file);
-      const fileModel: FileModel = {
-        filename: file.name,
-        status: 'uploading',
-      };
-
-      this.files.push(fileModel);
+      this.filesService.uploadFile(file).subscribe(
+        uploadedFile => {
+          this.toastService.show(`Файл ${uploadedFile.filename} загружен`);
+        }
+      );
     }
+
+    event.target.value = '';
   }
 
-  ngOnInit() {
-    this.loadFiles();
+  deleteFile(file: FileModel) {
+    this.filesService.deleteFile(file).subscribe(() => {
+      this.toastService.show(`Файл ${file.filename} удален`);
+    }, (err) => {
+      this.toastService.show(err);
+    })
   }
 
 }

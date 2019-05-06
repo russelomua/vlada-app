@@ -1,7 +1,9 @@
 export class FileModel {
     id?: number;
     userId?: number;
-    filename: string;
+    filename?: string;
     path?: string;
+    hash?: string;
     status?: string;
+    progress?: number;
 }

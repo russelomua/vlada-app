@@ -12,7 +12,6 @@ export class LoginPageGuard implements CanActivate {
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         const session = this.authenticationService.sessionValue;
-        console.log(route);
         if (session) {
             // not logged in so redirect to login page with the return url
             if (route.queryParams.returnUrl) {

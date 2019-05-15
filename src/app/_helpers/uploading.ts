@@ -18,5 +18,5 @@ export function uploadResult<T>( cb: ( result: T ) => void ) {
             cb(res.body);
             return res.body;
         })
-    )
+    );
 }

@@ -1,6 +1,6 @@
 export class FileModel {
     id?: number;
-    userId?: number;
+    orderId?: number;
     filename?: string;
     path?: string;
     hash?: string;

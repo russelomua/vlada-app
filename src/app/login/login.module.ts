@@ -5,12 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { LoginPage } from './login.page';
+import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    ComponentsModule,
+    TranslateModule,
     RouterModule.forChild([
       {
         path: '',

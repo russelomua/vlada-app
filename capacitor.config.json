@@ -1,0 +1,7 @@
+{
+  "appId": "ua.kharkov.vlada",
+  "appName": "vlada",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www"
+}

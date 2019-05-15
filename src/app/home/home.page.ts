@@ -1,78 +1,65 @@
 import { Component, OnInit } from '@angular/core';
 import { FileModel } from '../_models/file';
-import { File } from '@ionic-native/file/ngx';
 
-import { ToastService, FilesService, AuthenticationService } from '../_services';
-import { tap, map } from 'rxjs/operators';
+import { ToastService, FilesService, AuthenticationService, OrdersService } from '../_services';
+import { AppConfig } from '../app.config';
+import { ModalController } from '@ionic/angular';
+import { CreateOrderComponent } from '../_components';
+import { OrderModel } from '../_models';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  entryComponents: [ CreateOrderComponent ],
 })
 export class HomePage implements OnInit {
   files: FileModel[] = [];
 
   constructor(
+    public config: AppConfig,
     private toastService: ToastService,
-    private filesService: FilesService,
-    public auth: AuthenticationService
+    private ordersService: OrdersService,
+    public auth: AuthenticationService,
+    private modalController: ModalController,
+    private translation: TranslateService,
   ) {}
 
   ngOnInit() {
-    this.loadFiles();
+    this.loadOrders();
   }
 
-  openFile() {
-    document.getElementById('file').click();
+  async editOrder(order: OrderModel) {
+    const modal = await this.modalController.create({
+      component: CreateOrderComponent,
+      componentProps: { order }
+    });
+    return await modal.present();
   }
 
-  loadFiles() {
-    this.filesService.getAll().subscribe();
+  loadOrders() {
+    this.ordersService.getAll().subscribe();
   }
 
-  getFiles() {
-    return this.filesService.files;
+  getOrders() {
+    return this.ordersService.orders;
   }
 
-  getUploads() {
-    return this.filesService.uploading;
-  }
-
-  refreshFiles(event) {
-    this.filesService.getAll().subscribe(() => {
+  refreshOrders(event: any) {
+    this.ordersService.getAll().subscribe(() => {
       event.target.complete();
     }, () => {
       event.target.error();
     });
   }
 
-  uploadFiles(event) {
-    const files = event.target.files;
-
-    if (files.length == 0){
-      return;
-    }
-
-    // this.toastService.show('Загружаю ' + files.length + ' файл(ов)');
-
-    for (const file of files) {
-      this.filesService.uploadFile(file).subscribe(
-        uploadedFile => {
-          this.toastService.show(`Файл ${uploadedFile.filename} загружен`);
-        }
-      );
-    }
-
-    event.target.value = '';
-  }
-
-  deleteFile(file: FileModel) {
-    this.filesService.deleteFile(file).subscribe(() => {
-      this.toastService.show(`Файл ${file.filename} удален`);
+  deleteOrder(order: OrderModel) {
+    this.ordersService.delete(order).subscribe(() => {
+      this.toastService.show(this.translation.instant('Order deleted'));
     }, (err) => {
       this.toastService.show(err);
-    })
+    });
   }
 
 }

@@ -1,0 +1,16 @@
+<div class="item">
+  <ion-item>
+    <div slot="start">
+      <ion-icon name="document" size="large"></ion-icon>
+    </div>
+    <ion-label>
+      <h2>
+        {{file.filename}}
+      </h2>
+      <p>
+        {{file.status}}
+      </p>
+    </ion-label>
+  </ion-item>
+  <ion-progress-bar [hidden]="(file.progress < 1) || file.progress === undefined" color="primary" [value]="file.progress"></ion-progress-bar>
+</div>

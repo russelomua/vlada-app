@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title><span translate>Order from</span> {{order.date | date:"dd.MM.yy HH:mm"}}</ion-title>
+
+    <ion-buttons slot="secondary">
+      <input id="fileUploader" type="file" multiple hidden (change)="uploadFiles($event)" />
+      <ion-button (click)="openFile()">
+        <ion-icon name="cloud-upload" size="large"></ion-icon>
+      </ion-button>
+      <ion-button (click)="close()">
+        <ion-icon name="close" color="muted" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  
+  <ion-list>
+    <ion-list-header>
+      <ion-label translate>Files</ion-label>
+    </ion-list-header>
+    <app-file-item *ngFor="let file of files" [file]="file"></app-file-item>
+    <app-file-item *ngFor="let file of uploading()" [file]="file"></app-file-item>
+  </ion-list>
+  
+  <ion-item>
+    <ion-label position="floating" translate>Price</ion-label>
+    <ion-input [(ngModel)]="order.price"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating" translate>Latitude</ion-label>
+    <ion-input [(ngModel)]="order.lat"></ion-input>
+  </ion-item>
+ 
+  <ion-item>
+    <ion-label position="floating" translate>Longitude</ion-label>
+    <ion-input [(ngModel)]="order.lon"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating" translate>Comment</ion-label>
+    <ion-textarea [(ngModel)]="order.comment"></ion-textarea>
+  </ion-item>
+
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-title>Footer</ion-title>
+  </ion-toolbar>
+</ion-footer>
+  

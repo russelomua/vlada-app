@@ -13,16 +13,18 @@
                 <ion-card>
                     <ion-card-content>
                         <ion-item>
-                            <ion-label position="floating">Логин</ion-label>
+                            <ion-label position="floating" translate>Login</ion-label>
                             <ion-input type="text" [(ngModel)]="loginForm.login"></ion-input>
                         </ion-item>
                         <ion-item>
-                            <ion-label position="floating">Пароль</ion-label>
+                            <ion-label position="floating" translate>Password</ion-label>
                             <ion-input type="password" [(ngModel)]="loginForm.password"></ion-input>
                         </ion-item>
                         
-                        <ion-button expand="block" margin color="success" (click)="login()">Вход</ion-button>
-                        <ion-button expand="block" margin fill="clear" [routerLink]="['/register']">Регистрация</ion-button>
+                        <ion-button expand="block" margin color="success" (click)="login()" translate>Sign in</ion-button>
+                        <ion-button expand="block" margin fill="clear" [routerLink]="['/register']" translate>Sign up</ion-button>
+
+                        <app-language-selector></app-language-selector>
                     </ion-card-content>
                 </ion-card>
             </ion-col>

@@ -1,10 +1,10 @@
 export class UserModel {
-    id: number;
-    name: string;
-    surname: string;
-    adress: string;
+    id?: number;
+    name?: string;
+    surname?: string;
+    adress?: string;
     login: string;
-    avatar: string;
-    rule: string;
-    email: string;
+    avatar?: string;
+    rule?: string;
+    email?: string;
 }

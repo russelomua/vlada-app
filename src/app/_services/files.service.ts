@@ -18,8 +18,11 @@ export class FilesService {
     files: FileModel[] = [];
     uploading: FileModel[] = [];
 
-    getAll() {
-        return this.http.get<FileModel[]>(`${this.config.apiUrl}files`).pipe(
+    getAll(id: number) {
+        this.files = [];
+        return this.http.get<FileModel[]>(`${this.config.apiUrl}orders/${id}/files`);
+        /*
+        .pipe(
             tap({
               next: files => {
                 this.files = files;
@@ -28,7 +31,7 @@ export class FilesService {
                 this.files = [];
               }
             })
-        );
+        ) */
     }
 
     removeFromUploading(file: FileModel) {
@@ -49,7 +52,7 @@ export class FilesService {
         );
     }
 
-    uploadFile(file: any) {
+    uploadFile(orderId: number, file: any) {
         const uploadingFile: FileModel = {
             filename: file.name,
             status: 'uploading'
@@ -60,7 +63,7 @@ export class FilesService {
         const form = new FormData();
         form.append('upload', file);
 
-        return this.http.post(`${this.config.apiUrl}files`, form, {
+        return this.http.post(`${this.config.apiUrl}orders/${orderId}/files`, form, {
             reportProgress: true,
             observe: 'events'
         }).pipe(
@@ -72,9 +75,9 @@ export class FilesService {
             uploadProgress(progress => {
                 uploadingFile.progress = progress;
             }),
-            uploadResult<FileModel>( file => {
+            uploadResult<FileModel>( uploadedFile => {
                 this.removeFromUploading(uploadingFile);
-                this.files.push(file);
+                this.files.push(uploadedFile);
             })
         );
     }

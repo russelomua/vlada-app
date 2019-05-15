@@ -6,7 +6,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { HomePage } from './home.page';
-import { StatusPipe } from '../_pipes';
+import { TranslateModule } from '@ngx-translate/core';
+import { CreateOrderComponent } from '../_components';
+import { ComponentsModule } from '../_components/components.module';
 
 const routes: Routes = [
   {
@@ -20,8 +22,10 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
+    ComponentsModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [HomePage, StatusPipe]
+  entryComponents: [CreateOrderComponent],
+  declarations: [HomePage]
 })
 export class HomePageModule {}

@@ -8,9 +8,16 @@
         {{file.filename}}
       </h2>
       <p>
-        {{file.status}}
+        <span [ngSwitch]="file.status">
+          <span *ngSwitchCase="'pending'" translate>Pending for checking</span>
+          <span *ngSwitchCase="'queue'" translate>Queue</span>
+          <span *ngSwitchCase="'printing'" translate>Printing</span>
+          <span *ngSwitchCase="'done'" translate>Printed</span>
+          
+          <span *ngSwitchDefault>...</span>
+        </span>
       </p>
     </ion-label>
   </ion-item>
-  <ion-progress-bar [hidden]="(file.progress < 1) || file.progress === undefined" color="primary" [value]="file.progress"></ion-progress-bar>
+  <ion-progress-bar [hidden]="(file.progress >= 1) || file.progress === undefined" color="primary" [value]="file.progress"></ion-progress-bar>
 </div>

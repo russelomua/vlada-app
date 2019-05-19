@@ -1,12 +1,14 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title><span translate>Order from</span> {{order.date | date:"dd.MM.yy HH:mm"}}</ion-title>
-
+    <ion-title>
+      <ng-container *ngIf="order && order.date; else elseTemplate">
+        <span translate>Order from</span> {{order.date | date:"dd.MM.yy HH:mm"}}
+      </ng-container>
+      <ng-template #elseTemplate>
+          <span translate>New order</span>
+      </ng-template>
+    </ion-title>
     <ion-buttons slot="secondary">
-      <input id="fileUploader" type="file" multiple hidden (change)="uploadFiles($event)" />
-      <ion-button (click)="openFile()">
-        <ion-icon name="cloud-upload" size="large"></ion-icon>
-      </ion-button>
       <ion-button (click)="close()">
         <ion-icon name="close" color="muted" size="large"></ion-icon>
       </ion-button>
@@ -14,41 +16,94 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  
-  <ion-list>
-    <ion-list-header>
-      <ion-label translate>Files</ion-label>
-    </ion-list-header>
-    <app-file-item *ngFor="let file of files" [file]="file"></app-file-item>
-    <app-file-item *ngFor="let file of uploading()" [file]="file"></app-file-item>
-  </ion-list>
-  
-  <ion-item>
-    <ion-label position="floating" translate>Price</ion-label>
-    <ion-input [(ngModel)]="order.price"></ion-input>
-  </ion-item>
 
-  <ion-item>
-    <ion-label position="floating" translate>Latitude</ion-label>
-    <ion-input [(ngModel)]="order.lat"></ion-input>
-  </ion-item>
- 
-  <ion-item>
-    <ion-label position="floating" translate>Longitude</ion-label>
-    <ion-input [(ngModel)]="order.lon"></ion-input>
-  </ion-item>
+  <ion-card>
+    <ion-card-header translate>
+        Files
+    </ion-card-header>
+    <ion-card-content>
+      <input id="fileUploader" type="file" multiple hidden (change)="uploadFiles($event)" />
+      <ng-container *ngIf="files.length; else elseTemplate">
+        <app-file-item *ngFor="let file of files" [file]="file"></app-file-item>
+      </ng-container>
+      <ng-template #elseTemplate>
+          <span text="muted" translate>No files in order</span>
+      </ng-template>
+      
+      <app-file-item *ngFor="let file of uploading()" [file]="file"></app-file-item>
+    </ion-card-content>
+  </ion-card>
 
-  <ion-item>
-    <ion-label position="floating" translate>Comment</ion-label>
-    <ion-textarea [(ngModel)]="order.comment"></ion-textarea>
-  </ion-item>
+  <ion-card *ngIf="order.status === 'payment'">
+    <ion-card-header translate>
+      Payment
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label text-wrap>
+          <span translate>Payment sum</span>: 
+          <strong slot="end">
+            {{order.price}} {{'UAH' | translate}}
+          </strong>
+        </ion-label>
+      </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-input type="text" [(ngModel)]="creditCard.name" required placeholder="{{'Mr.Cardholder' | translate}}" translate>Name</ion-input>
+          </ion-col>
+        </ion-row>
+        
+        <ion-row>
+          <ion-col>
+              <ion-input type="number" maxlength="16" required [(ngModel)]="creditCard.number" placeholder="{{'Credit card number' | translate}}" translate>Card</ion-input>
+          </ion-col>
+        </ion-row>
 
+        <ion-row>
+          <ion-col>
+            <ion-input type="text" [(ngModel)]="creditCard.exp" required placeholder="{{'Month/Year' | translate}}" translate>Expiration</ion-input>
+          </ion-col>
+          <ion-col>
+            <ion-input type="number" maxlength="3" required [(ngModel)]="creditCard.cvv" placeholder="{{'3-digit CVV' | translate}}" translate>Security</ion-input>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="order.status === 'pending_delivery'">
+    <ion-card-header translate>Delivering</ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating" translate>Latitude</ion-label>
+        <ion-input [(ngModel)]="order.lat"></ion-input>
+      </ion-item>
+      {{order | json}}
+      <ion-item>
+        <ion-label position="floating" translate>Longitude</ion-label>
+        <ion-input [(ngModel)]="order.lon"></ion-input>
+      </ion-item>
+    
+      <ion-item>
+        <ion-label position="floating" translate>Comment</ion-label>
+        <ion-textarea [(ngModel)]="order.comment"></ion-textarea>
+      </ion-item>
+      <ion-button expand="full" (click)="getLocation()">Get current Location</ion-button>
+    </ion-card-content>
+  </ion-card>
 
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
-    <ion-title>Footer</ion-title>
+      <ion-buttons slot="end">
+        <ion-button shape="round" translate>Cancel</ion-button>
+        <ion-button *ngIf="order.status === 'new'" fill="solid" shape="round" color="success" (click)="openFile()" translate>Upload files</ion-button>
+        <ion-button *ngIf="order.status === 'new' && this.files.length" fill="solid" shape="round" color="primary" (click)="saveOrder()" translate>Do order</ion-button>
+
+        <ion-button *ngIf="order.status === 'payment'" fill="solid" shape="round" color="success" (click)="payOrder()" translate>Pay order</ion-button>
+      </ion-buttons>
   </ion-toolbar>
 </ion-footer>
   

@@ -15,8 +15,6 @@ import { TranslateService } from '@ngx-translate/core';
   entryComponents: [ CreateOrderComponent ],
 })
 export class HomePage implements OnInit {
-  files: FileModel[] = [];
-
   constructor(
     public config: AppConfig,
     private toastService: ToastService,
@@ -30,7 +28,8 @@ export class HomePage implements OnInit {
     this.loadOrders();
   }
 
-  async editOrder(order: OrderModel) {
+  async editOrder(order?: OrderModel) {
+    // order = (order ? order : new OrderModel());
     const modal = await this.modalController.create({
       component: CreateOrderComponent,
       componentProps: { order }

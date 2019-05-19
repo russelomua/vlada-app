@@ -34,7 +34,9 @@
           </h2>
           <p>
             <span [ngSwitch]="order.status">
+              <span *ngSwitchCase="'pending'" translate>Pending for checking</span>
               <span *ngSwitchCase="'payment'" translate>Waiting for payment</span>
+              <span *ngSwitchCase="'payed'" translate>Payed</span>
               <span *ngSwitchCase="'printing'" translate>Printing</span>
               <span *ngSwitchCase="'pending_delivery'" translate>Pending for delivering</span>
               <span *ngSwitchCase="'delivering'" translate>Delivering in progress</span>
@@ -43,9 +45,6 @@
               
               <span *ngSwitchDefault>...</span>
             </span>
-            /
-            <span [hidden]="order.paymentStatus" translate>Not paid</span>
-            <span [hidden]="!order.paymentStatus" translate>Paid</span>
           </p>
         </ion-label>
       </ion-item>

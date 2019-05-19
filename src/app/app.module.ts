@@ -13,6 +13,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor, ErrorInterceptor, TranslateUniversalLoader } from './_helpers';
 
 import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -32,6 +33,7 @@ import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
   providers: [
     StatusBar,
     SplashScreen,
+    Geolocation,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }

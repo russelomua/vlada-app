@@ -4,14 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { AppConfig } from '../app.config';
 import { UserModel } from '../_models';
 import { tap } from 'rxjs/operators';
-import { ToastService } from './toast.service';
+import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
-export class FilesService {
+export class UserService {
     constructor(
         private http: HttpClient,
         private config: AppConfig,
-        private toast: ToastService,
+        private router: Router,
     ) {}
 
     users: UserModel[] = [];
@@ -43,16 +43,13 @@ export class FilesService {
         );
     }
 
-    // create(user: UserModel) {
-    //     return this.http.post<UserModel>(`${this.config.apiUrl}users`, user).pipe(
-    //         tap({
-    //             next: createdUser => {
-    //                 this.users.push(createdUser);
-    //             },
-    //             error: () => {
-    //                 this.toast.show('123');
-    //             }
-    //         })
-    //     );
-    // }
+    create(user: UserModel) {
+        return this.http.post<UserModel>(`${this.config.apiUrl}users`, user).pipe(
+            tap({
+                next: () => {
+                    this.router.navigate(['/login']);
+                }
+            })
+        );
+    }
 }

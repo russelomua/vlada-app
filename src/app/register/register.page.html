@@ -15,26 +15,34 @@
                     <ion-card-content>
                         <ion-item>
                             <ion-label position="floating" translate>Login</ion-label>
-                            <ion-input required></ion-input>
+                            <ion-input [(ngModel)]="user.login" required></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="floating" translate>E-mail</ion-label>
+                            <ion-input [(ngModel)]="user.email" required></ion-input>
                         </ion-item>
                         <ion-item>
                             <ion-label position="floating" translate>Password</ion-label>
-                            <ion-input type="password" required></ion-input>
+                            <ion-input [(ngModel)]="user.password" type="password" required></ion-input>
                         </ion-item>
                         <ion-item>
                             <ion-label position="floating" translate>Password reply</ion-label>
-                            <ion-input type="password" required></ion-input>
+                            <ion-input [(ngModel)]="replyPassword" type="password" required></ion-input>
                         </ion-item>
                         <ion-item>
                             <ion-label position="floating" translate>Name</ion-label>
-                            <ion-input type="text" required></ion-input>
+                            <ion-input [(ngModel)]="user.name" type="text" required></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="floating" translate>Surname</ion-label>
+                            <ion-input [(ngModel)]="user.surname" type="text"></ion-input>
                         </ion-item>
                         <ion-item>
                             <ion-label position="floating" translate>Address</ion-label>
-                            <ion-input type="text"></ion-input>
+                            <ion-input [(ngModel)]="user.adress" type="text"></ion-input>
                         </ion-item>
 
-                        <ion-button expand="block" margin color="success" [routerLink]="['/register']" translate>Sign up</ion-button>
+                        <ion-button expand="block" margin color="success" (click)="register()" translate>Sign up</ion-button>
                     </ion-card-content>
                 </ion-card>
             </ion-col>

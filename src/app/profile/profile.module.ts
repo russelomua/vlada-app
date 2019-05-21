@@ -1,19 +1,13 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
 import { ProfilePage } from './profile.page';
 import { TranslateModule } from '@ngx-translate/core';
-
-const routes: Routes = [
-  {
-    path: '',
-    component: ProfilePage
-  }
-];
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -21,8 +15,13 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     TranslateModule,
-    RouterModule.forChild(routes)
+    ComponentsModule,
+    RouterModule.forChild([{
+        path: '',
+        component: ProfilePage
+    }])
   ],
-  declarations: [ProfilePage]
+  declarations: [ProfilePage],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
 })
 export class ProfilePageModule {}

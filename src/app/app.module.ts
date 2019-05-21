@@ -14,6 +14,7 @@ import { JwtInterceptor, ErrorInterceptor, TranslateUniversalLoader } from './_h
 
 import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,7 +29,8 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
           provide: TranslateLoader,
           useClass: TranslateUniversalLoader
       }
-    })
+    }),
+    LeafletModule.forRoot(),
   ],
   providers: [
     StatusBar,

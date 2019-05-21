@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { LoginPage } from './login.page';
-import { TranslateModule } from '@ngx-translate/core';
 import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
@@ -14,13 +13,10 @@ import { ComponentsModule } from '../_components/components.module';
     FormsModule,
     IonicModule,
     ComponentsModule,
-    TranslateModule,
-    RouterModule.forChild([
-      {
+    RouterModule.forChild([{
         path: '',
         component: LoginPage
-      }
-    ])
+    }])
   ],
   declarations: [LoginPage]
 })

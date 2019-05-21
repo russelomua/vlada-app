@@ -4,6 +4,10 @@ import { FileModel, OrderModel, CreditCardModel } from 'src/app/_models';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { tileLayer, latLng, LatLng, marker, icon, Map } from 'leaflet';
+import { Subject, interval } from 'rxjs';
+import { filter, throttleTime, timeout, tap } from 'rxjs/operators';
+import { last } from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'app-create-order',
@@ -14,6 +18,26 @@ export class CreateOrderComponent implements OnInit {
   public files: FileModel[] = [];
   public order: OrderModel;
   public creditCard: CreditCardModel = new CreditCardModel();
+
+  public options = {
+    layers: [
+      tileLayer(
+        'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          maxZoom: 18,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        })
+    ],
+    zoom: 10,
+    center: latLng(49.9884043, 36.2328028)
+  };
+  MOVE_EVENT = 'mapMove';
+
+  map: Map;
+  mapLayers: any[] = [];
+  mapPoint: LatLng;
+  mapCenter: LatLng;
+  mapEvent = new Subject<LatLng>();
 
   constructor(
     private toastService: ToastService,
@@ -34,6 +58,14 @@ export class CreateOrderComponent implements OnInit {
     } else {
       this.order = this.navParams.data.order;
       this.loadFiles();
+    }
+
+    if (this.order.status === 'enter_location') {
+      this.getLocation();
+
+      interval(1).subscribe(() => {
+        this.map.invalidateSize();
+      });
     }
   }
 
@@ -89,19 +121,26 @@ export class CreateOrderComponent implements OnInit {
   async getLocation() {
     const g = await this.geolocation.getCurrentPosition();
 
-    this.order.lat = g.coords.latitude;
-    this.order.lon = g.coords.longitude;
+    this.mapCenter = latLng(g.coords.latitude, g.coords.longitude);
+    this.updateMapPoint(this.mapCenter);
+  }
+
+  deleteOrder() {
+    this.ordersService.delete(this.order).subscribe(() => {
+      this.toastService.show(this.translation.instant('Order canceled'));
+      this.close();
+    });
   }
 
   saveOrder() {
     this.order.status = 'pending';
     this.ordersService.put(this.order).subscribe(() => {
       this.toastService.show(this.translation.instant('Order will processed by manager and will invoice'));
+      this.close();
     });
   }
 
   payOrder() {
-    console.log(this.creditCard.name);
     if (!this.creditCard.checkCard()) {
       this.toastService.show(this.translation.instant('Enter your credit card details'));
       return;
@@ -109,8 +148,52 @@ export class CreateOrderComponent implements OnInit {
 
     this.order.status = 'payed';
     this.ordersService.put(this.order).subscribe(() => {
-      this.toastService.show(this.translation.instant('Order payed successfuly.'));
+      this.toastService.show(this.translation.instant('Order payed successfuly'));
+      this.close();
     });
+  }
+
+  deliverOrder() {
+    this.order.status = 'pending_delivery';
+    this.ordersService.put(this.order).subscribe(() => {
+      this.toastService.show(this.translation.instant('Wait for delivering'));
+      this.close();
+    });
+  }
+
+  // map
+  updateMapPoint(point?: LatLng) {
+    if (typeof point === 'undefined') {
+      point = this.map.getCenter();
+    }
+    this.mapPoint = point;
+    this.order.lat = this.mapPoint.lat;
+    this.order.lon = this.mapPoint.lng;
+
+    const layer = marker(this.mapPoint, {
+      icon: icon({
+        iconSize: [ 25, 41 ],
+        iconAnchor: [ 13, 41 ],
+        iconUrl: 'assets/leaflet/marker-icon.png',
+        shadowUrl: 'assets/leaflet/marker-shadow.png'
+      })
+    });
+    this.mapLayers[0] = layer;
+  }
+
+  onMapReady(map: Map) {
+    this.map = map;
+
+    this.mapEvent.pipe(
+      throttleTime(50)
+    )
+    .subscribe(coord => {
+      this.updateMapPoint(coord);
+    });
+  }
+
+  clickEvent(event: any) {
+    this.mapEvent.next(event.latlng);
   }
 
 }

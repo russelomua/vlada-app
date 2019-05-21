@@ -1,8 +1,23 @@
 <ion-header>
     <ion-toolbar color="dark">
-        <ion-title>
-            {{title}}
-        </ion-title>
+        
+        <ion-grid>
+            <ion-row center class="ion-justify-content-center ion-align-items-center">
+                <ion-col size-xl="7" size-lg="7" size-md="10" size-xs="12">
+                    <div class="flex-header">
+
+                        <ion-title>
+                            {{title}}
+                        </ion-title>
+                        <ion-buttons slot="secondary">
+                            <app-language-selector></app-language-selector>
+                        </ion-buttons>
+
+                    </div>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
     </ion-toolbar>
 </ion-header>
 
@@ -23,8 +38,7 @@
                         
                         <ion-button expand="block" margin color="success" (click)="login()" translate>Sign in</ion-button>
                         <ion-button expand="block" margin fill="clear" [routerLink]="['/register']" translate>Sign up</ion-button>
-
-                        <app-language-selector></app-language-selector>
+                        <ion-button expand="block" margin fill="clear" [routerLink]="['/profile']" translate>Sign up</ion-button>
                     </ion-card-content>
                 </ion-card>
             </ion-col>

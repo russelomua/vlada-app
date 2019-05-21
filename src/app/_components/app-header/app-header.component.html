@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar color="primary">
+
+    <ion-grid>
+      <ion-row center class="ion-justify-content-center ion-align-items-center">
+        <ion-col size-xl="7" size-lg="7" size-md="10" size-xs="12">
+
+          <div class="flex-header">
+            <ion-buttns *ngIf="!isAtHome()">
+                <ion-back-button defaultHref="home"></ion-back-button>
+            </ion-buttns>
+            <ion-title *ngIf="isAtHome()">{{config.name}}</ion-title>
+        
+            <ion-buttons class="pull-right">
+              <app-language-selector></app-language-selector>
+              <ion-button fill="clear" shape="round" [routerLink]="['/profile']">
+                <ion-icon name="contact" size="large"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" shape="round" (click)="auth.logout()">
+                <ion-icon name="log-out" size="large"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+
+          </div>
+          
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </ion-toolbar>
+</ion-header>

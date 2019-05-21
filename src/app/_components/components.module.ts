@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { AppHeaderComponent } from './app-header/app-header.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   imports: [
@@ -12,8 +15,11 @@ import { IonicModule } from '@ionic/angular';
     TranslateModule,
     IonicModule,
     FormsModule,
+    LeafletModule,
+    RouterModule,
   ],
   declarations: [
+    AppHeaderComponent,
     LanguageSelectorComponent,
     CreateOrderComponent,
     FileItemComponent,
@@ -21,6 +27,8 @@ import { IonicModule } from '@ionic/angular';
   ],
   exports: [
     TranslateModule,
+    LeafletModule,
+    AppHeaderComponent,
     LanguageSelectorComponent,
     CreateOrderComponent,
     FileItemComponent,

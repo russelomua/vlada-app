@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
+  <ion-toolbar color="warning">
+    <ion-title color="dark">
       <ng-container *ngIf="order && order.date; else elseTemplate">
         <span translate>Order from</span> {{order.date | date:"dd.MM.yy HH:mm"}}
       </ng-container>
@@ -10,7 +10,7 @@
     </ion-title>
     <ion-buttons slot="secondary">
       <ion-button (click)="close()">
-        <ion-icon name="close" color="muted" size="large"></ion-icon>
+        <ion-icon name="close" color="dark" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -72,24 +72,26 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-card *ngIf="order.status === 'pending_delivery'">
+  <ion-card *ngIf="order.status === 'enter_location'">
     <ion-card-header translate>Delivering</ion-card-header>
     <ion-card-content>
-      <ion-item>
-        <ion-label position="floating" translate>Latitude</ion-label>
-        <ion-input [(ngModel)]="order.lat"></ion-input>
-      </ion-item>
-      {{order | json}}
-      <ion-item>
-        <ion-label position="floating" translate>Longitude</ion-label>
-        <ion-input [(ngModel)]="order.lon"></ion-input>
-      </ion-item>
-    
+      <div id="mapHolder">
+        <ion-fab-button class="mapButton" color="light" size="small" (click)="getLocation()">
+          <ion-icon name="locate"></ion-icon>
+        </ion-fab-button>
+        <div id="map"
+          leaflet
+          (leafletMapReady)="onMapReady($event)"
+          [(leafletCenter)]="mapCenter"
+          [leafletOptions]="options"
+          [leafletLayers]="mapLayers"
+          (leafletClick)="clickEvent($event)">
+        </div>
+      </div>
       <ion-item>
         <ion-label position="floating" translate>Comment</ion-label>
         <ion-textarea [(ngModel)]="order.comment"></ion-textarea>
       </ion-item>
-      <ion-button expand="full" (click)="getLocation()">Get current Location</ion-button>
     </ion-card-content>
   </ion-card>
 
@@ -98,11 +100,12 @@
 <ion-footer>
   <ion-toolbar>
       <ion-buttons slot="end">
-        <ion-button shape="round" translate>Cancel</ion-button>
+        <ion-button *ngIf="order.status === 'new' || order.status === 'pending' || order.status === 'payment'" (click)="deleteOrder()" shape="round" translate>Cancel</ion-button>
         <ion-button *ngIf="order.status === 'new'" fill="solid" shape="round" color="success" (click)="openFile()" translate>Upload files</ion-button>
         <ion-button *ngIf="order.status === 'new' && this.files.length" fill="solid" shape="round" color="primary" (click)="saveOrder()" translate>Do order</ion-button>
 
         <ion-button *ngIf="order.status === 'payment'" fill="solid" shape="round" color="success" (click)="payOrder()" translate>Pay order</ion-button>
+        <ion-button *ngIf="order.status === 'enter_location'" fill="solid" shape="round" color="success" (click)="deliverOrder()" translate>Deliver</ion-button>
       </ion-buttons>
   </ion-toolbar>
 </ion-footer>

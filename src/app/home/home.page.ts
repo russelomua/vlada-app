@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FileModel } from '../_models/file';
+import { ModalController, Platform } from '@ionic/angular';
 
-import { ToastService, FilesService, AuthenticationService, OrdersService } from '../_services';
 import { AppConfig } from '../app.config';
-import { ModalController } from '@ionic/angular';
+import { ToastService, AuthenticationService, OrdersService, DoubleBackService } from '../_services';
 import { CreateOrderComponent } from '../_components';
 import { OrderModel } from '../_models';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,7 +21,16 @@ export class HomePage implements OnInit {
     public auth: AuthenticationService,
     private modalController: ModalController,
     private translation: TranslateService,
+    private doubleBack: DoubleBackService,
   ) {}
+
+  ionViewDidEnter() {
+    this.doubleBack.subscribe();
+  }
+
+  ionViewWillLeave() {
+    this.doubleBack.unsubscribe();
+  }
 
   ngOnInit() {
     this.loadOrders();
@@ -30,10 +38,16 @@ export class HomePage implements OnInit {
 
   async editOrder(order?: OrderModel) {
     // order = (order ? order : new OrderModel());
+    this.doubleBack.unsubscribe();
     const modal = await this.modalController.create({
       component: CreateOrderComponent,
       componentProps: { order }
     });
+
+    modal.onDidDismiss().finally(() => {
+      this.doubleBack.subscribe();
+    });
+
     return await modal.present();
   }
 

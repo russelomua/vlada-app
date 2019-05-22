@@ -4,9 +4,9 @@ import { FileModel, OrderModel, CreditCardModel, DronModel } from 'src/app/_mode
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { tileLayer, latLng, LatLng, marker, icon, Map, polyline, Marker } from 'leaflet';
+import { tileLayer, latLng, LatLng, marker, icon, Map, polyline, Marker, map } from 'leaflet';
 import { Subject, interval, timer, Subscription } from 'rxjs';
-import { filter, throttleTime } from 'rxjs/operators';
+import { filter, throttleTime, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-order',
@@ -132,8 +132,11 @@ export class CreateOrderComponent implements OnInit {
 
   async getLocation() {
     const g = await this.geolocation.getCurrentPosition();
-
-    this.mapCenter = latLng(g.coords.latitude, g.coords.longitude);
+    if (this.order.lat && this.order.lon) {
+      this.mapCenter = latLng(this.order.lat, this.order.lon);
+    } else {
+      this.mapCenter = latLng(g.coords.latitude, g.coords.longitude);
+    }
     this.updateMapPoint(this.mapCenter);
   }
 
@@ -231,9 +234,6 @@ export class CreateOrderComponent implements OnInit {
         })
       });
       this.mapLayers[1] = layer;
-
-      const line = polyline([this.mapOffice, this.mapPoint]);
-      this.mapLayers[2] = line;
     });
   }
 
@@ -258,25 +258,33 @@ export class CreateOrderComponent implements OnInit {
         shadowUrl: 'assets/leaflet/marker-shadow.png'
       })
     });
-    this.mapLayers[3] = this.mapDronMarker;
+    this.mapLayers[2] = this.mapDronMarker;
   }
 
   removeDron() {
-    this.mapLayers.splice(3);
+    this.mapLayers.splice(2);
   }
 
   startDron() {
-    return timer(1000, 1000).subscribe({
-      next: () => {
-        this.mapDronMarker.setLatLng(this.getCoordWithProgress());
-      },
-      complete: () => {
+    return timer(1000, 1000).pipe(takeWhile(() => {
+      if (this.mapPoint.equals(this.getCoordWithProgress())) {
         this.removeDron();
+        this.toastService.show(this.translation.instant('Delivered. Catch your order'), 6000);
+        return false;
+      }
+      return true;
+    })).subscribe({
+      next: () => {
+        const dron = this.getCoordWithProgress();
+        this.mapDronMarker.setLatLng(dron);
       }
     });
   }
 
   getCoordWithProgress() {
+    if (typeof this.mapOffice === 'undefined') {
+      return this.mapPoint;
+    }
     const start = this.mapOffice; // start
     const finish = this.mapPoint; // end
     const progress = this.getProgress(this.orderDron);

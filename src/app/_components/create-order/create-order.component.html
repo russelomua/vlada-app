@@ -88,9 +88,13 @@
           (leafletClick)="clickEvent($event)">
         </div>
       </div>
+      <ion-item *ngIf="orderDron">
+        <ion-label translate>Expected delivery time</ion-label>
+        <div>{{orderDron.finish | date: 'd.MM.yy hh:mm'}}</div>
+      </ion-item>
       <ion-item>
         <ion-label position="floating" translate>Comment</ion-label>
-        <ion-textarea [(ngModel)]="order.comment"></ion-textarea>
+        <ion-textarea [(ngModel)]="order.comment" [disabled]="order.status == 'delivering'"></ion-textarea>
       </ion-item>
     </ion-card-content>
   </ion-card>

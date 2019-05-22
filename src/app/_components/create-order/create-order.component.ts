@@ -71,7 +71,7 @@ export class CreateOrderComponent implements OnInit {
     if (this.mapVisible()) {
       this.getLocation();
 
-      if (this.order.status == 'delivering') {
+      if (this.order.status === 'delivering') {
         this.mapShowOffice();
         this.loadDron();
       }
@@ -300,7 +300,7 @@ export class CreateOrderComponent implements OnInit {
 
     const progress = now / finish;
 
-    if (progress > 1){
+    if (progress > 1) {
       return 1;
     }
     if (progress < 0 ) {

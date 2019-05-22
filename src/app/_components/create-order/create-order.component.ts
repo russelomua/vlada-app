@@ -268,7 +268,6 @@ export class CreateOrderComponent implements OnInit {
   startDron() {
     return timer(1000, 1000).subscribe({
       next: () => {
-        console.log(this.getCoordWithProgress());
         this.mapDronMarker.setLatLng(this.getCoordWithProgress());
       },
       complete: () => {

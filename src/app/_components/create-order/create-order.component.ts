@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService, FilesService, OrdersService } from 'src/app/_services';
-import { FileModel, OrderModel, CreditCardModel } from 'src/app/_models';
+import { FileModel, OrderModel, CreditCardModel, DronModel } from 'src/app/_models';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { tileLayer, latLng, LatLng, marker, icon, Map } from 'leaflet';
-import { Subject, interval } from 'rxjs';
-import { filter, throttleTime, timeout, tap } from 'rxjs/operators';
-import { last } from '@angular/router/src/utils/collection';
+import { tileLayer, latLng, LatLng, marker, icon, Map, polyline, Marker } from 'leaflet';
+import { Subject, interval, timer, Subscription } from 'rxjs';
+import { filter, throttleTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-order',
@@ -36,8 +35,17 @@ export class CreateOrderComponent implements OnInit {
   map: Map;
   mapLayers: any[] = [];
   mapPoint: LatLng;
+
+  mapOffice: LatLng;
+
+  mapDron: LatLng;
+  mapDronMarker: Marker;
+
   mapCenter: LatLng;
   mapEvent = new Subject<LatLng>();
+  orderDron: DronModel;
+
+  dronProgress: Subscription;
 
   constructor(
     private toastService: ToastService,
@@ -60,8 +68,13 @@ export class CreateOrderComponent implements OnInit {
       this.loadFiles();
     }
 
-    if (this.order.status === 'enter_location') {
+    if (this.mapVisible()) {
       this.getLocation();
+
+      if (this.order.status == 'delivering') {
+        this.mapShowOffice();
+        this.loadDron();
+      }
 
       interval(1).subscribe(() => {
         this.map.invalidateSize();
@@ -69,12 +82,11 @@ export class CreateOrderComponent implements OnInit {
     }
   }
 
-  save() {
-    this.modalController.dismiss();
-  }
-
   close() {
     this.modalController.dismiss();
+    if (typeof this.dronProgress !== 'undefined') {
+      this.dronProgress.unsubscribe();
+    }
   }
 
   uploading() {
@@ -172,8 +184,8 @@ export class CreateOrderComponent implements OnInit {
 
     const layer = marker(this.mapPoint, {
       icon: icon({
-        iconSize: [ 25, 41 ],
-        iconAnchor: [ 13, 41 ],
+        iconSize: [ 18, 29 ], // iconSize: [ 25, 41 ],
+        iconAnchor: [ 9, 29 ], // iconAnchor: [ 13, 41 ],
         iconUrl: 'assets/leaflet/marker-icon.png',
         shadowUrl: 'assets/leaflet/marker-shadow.png'
       })
@@ -185,7 +197,13 @@ export class CreateOrderComponent implements OnInit {
     this.map = map;
 
     this.mapEvent.pipe(
-      throttleTime(50)
+      throttleTime(50),
+      filter(() => {
+        if (this.order.status === 'enter_location') {
+          return true;
+        }
+        return false;
+      }),
     )
     .subscribe(coord => {
       this.updateMapPoint(coord);
@@ -194,6 +212,102 @@ export class CreateOrderComponent implements OnInit {
 
   clickEvent(event: any) {
     this.mapEvent.next(event.latlng);
+  }
+
+  mapVisible() {
+    return (this.order.status === 'enter_location' || this.order.status === 'pending_delivery' || this.order.status === 'delivering');
+  }
+
+  mapShowOffice() {
+    this.ordersService.getOffice().subscribe(coords => {
+      this.mapOffice = latLng(coords);
+
+      const layer = marker(this.mapOffice, {
+        icon: icon({
+          iconSize: [ 18, 29 ],
+          iconAnchor: [ 9, 29 ],
+          iconUrl: 'assets/leaflet/marker-icon.png',
+          shadowUrl: 'assets/leaflet/marker-shadow.png'
+        })
+      });
+      this.mapLayers[1] = layer;
+
+      const line = polyline([this.mapOffice, this.mapPoint]);
+      this.mapLayers[2] = line;
+    });
+  }
+
+  loadDron() {
+    this.ordersService.getDelivery(this.order).subscribe(dron => {
+      this.orderDron = dron;
+      const date = new Date(this.orderDron.start);
+      if (date.getTime() >= date.getTime()) {
+        this.mapDron = this.getCoordWithProgress();
+        this.addDron();
+        this.dronProgress = this.startDron();
+      }
+    });
+  }
+
+  addDron() {
+    this.mapDronMarker = marker([0, 0], {
+      icon: icon({
+        iconSize: [ 48, 41 ],
+        iconAnchor: [ 24, 41 ],
+        iconUrl: 'assets/dron-icon.png',
+        shadowUrl: 'assets/leaflet/marker-shadow.png'
+      })
+    });
+    this.mapLayers[3] = this.mapDronMarker;
+  }
+
+  removeDron() {
+    this.mapLayers.splice(3);
+  }
+
+  startDron() {
+    return timer(1000, 1000).subscribe({
+      next: () => {
+        console.log(this.getCoordWithProgress());
+        this.mapDronMarker.setLatLng(this.getCoordWithProgress());
+      },
+      complete: () => {
+        this.removeDron();
+      }
+    });
+  }
+
+  getCoordWithProgress() {
+    const start = this.mapOffice; // start
+    const finish = this.mapPoint; // end
+    const progress = this.getProgress(this.orderDron);
+
+    if (progress === 0) {
+      return start;
+    }
+    return latLng(
+      (finish.lat - start.lat) * progress + start.lat,
+      (finish.lng - start.lng) * progress + start.lng
+    );
+  }
+
+  getProgress(dron: DronModel) {
+    let now = new Date().getTime();
+    const start = new Date(dron.start).getTime();
+    let finish = new Date(dron.finish).getTime();
+
+    finish -= start;
+    now -= start;
+
+    const progress = now / finish;
+
+    if (progress > 1){
+      return 1;
+    }
+    if (progress < 0 ) {
+      return 0;
+    }
+    return progress;
   }
 
 }

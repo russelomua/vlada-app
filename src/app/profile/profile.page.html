@@ -1,5 +1,42 @@
 <app-header></app-header>
 
 <ion-content>
-asdasd
+  <ion-grid>
+    <ion-row center class="ion-justify-content-center ion-align-items-center">
+      <ion-col size-xl="7" size-lg="7" size-md="10" size-xs="12">
+
+        <ion-card>
+          <ion-card-content>
+            <ion-item>
+              <ion-label position="floating" translate>Login</ion-label>
+              <ion-input [(ngModel)]="user.login" disabled></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" translate>E-mail</ion-label>
+              <ion-input [(ngModel)]="user.email" disabled></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" translate>Password</ion-label>
+              <ion-input [(ngModel)]="user.password" type="password"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" translate>Name</ion-label>
+              <ion-input [(ngModel)]="user.name" type="text" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" translate>Surname</ion-label>
+              <ion-input [(ngModel)]="user.surname" type="text"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating" translate>Address</ion-label>
+              <ion-textarea [(ngModel)]="user.adress" type="text"></ion-textarea>
+            </ion-item>
+
+            <ion-button expand="block" margin color="success" (click)="save()" translate>Edit</ion-button>
+          </ion-card-content>
+        </ion-card>
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

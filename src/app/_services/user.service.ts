@@ -14,31 +14,28 @@ export class UserService {
         private router: Router,
     ) {}
 
-    users: UserModel[] = [];
+    user: UserModel;
 
-    getAll() {
-        this.users = [];
-        return this.http.get<UserModel[]>(`${this.config.apiUrl}files`).pipe(
+    getCurrent() {
+        return this.http.get<UserModel>(`${this.config.apiUrl}users`).pipe(
             tap({
-              next: users => {
-                this.users = users;
+              next: user => {
+                this.user = user;
               },
               error: () => {
-                this.users = [];
+                this.user = new UserModel();
               }
             })
         );
     }
 
-    get(id: number) {
-        return this.http.get<UserModel>(`${this.config.apiUrl}users/${id}`).pipe(
-            tap(user => {
-                const index = this.users.indexOf(user);
-                if (index >= 0) {
-                    this.users[index] = user;
-                } else {
-                    this.users.push(user);
-                }
+    edit(user: UserModel) {
+        return this.http.put<UserModel>(`${this.config.apiUrl}users`, user).pipe(
+            tap({
+              next: editedUser => {
+                this.user = editedUser;
+              },
+              error: () => {}
             })
         );
     }

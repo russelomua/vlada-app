@@ -72,7 +72,7 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-card *ngIf="order.status === 'enter_location'">
+  <ion-card *ngIf="mapVisible()">
     <ion-card-header translate>Delivering</ion-card-header>
     <ion-card-content>
       <div id="mapHolder">

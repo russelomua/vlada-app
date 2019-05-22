@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 
 import { AppConfig } from '../app.config';
-import { FileModel, OrderModel } from '../_models';
+import { FileModel, OrderModel, DronModel } from '../_models';
 import { tap, catchError } from 'rxjs/operators';
 import { ToastService } from './toast.service';
 import { uploadProgress, uploadResult } from '../_helpers/uploading';
@@ -60,5 +60,13 @@ export class OrdersService {
                 this.orders.push(order);
             })
         );
+    }
+
+    getOffice() {
+        return this.http.get<[number, number]>(`${this.config.apiUrl}office`);
+    }
+
+    getDelivery(order: OrderModel) {
+        return this.http.get<DronModel>(`${this.config.apiUrl}orders/${order.id}/delivery`);
     }
 }

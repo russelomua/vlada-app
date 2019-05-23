@@ -101,7 +101,7 @@
 
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="order.status === 'new' || order.status === 'pending' || order.status === 'payment' || order.status === 'enter_location'">
   <ion-toolbar>
       <ion-buttons slot="end">
         <ion-button *ngIf="order.status === 'new' || order.status === 'pending' || order.status === 'payment'" (click)="deleteOrder()" shape="round" translate>Cancel</ion-button>

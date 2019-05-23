@@ -4,9 +4,10 @@ import { FileModel, OrderModel, CreditCardModel, DronModel } from 'src/app/_mode
 import { TranslateService } from '@ngx-translate/core';
 import { ModalController, NavParams } from '@ionic/angular';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { tileLayer, latLng, LatLng, marker, icon, Map, polyline, Marker, map } from 'leaflet';
+import { tileLayer, latLng, LatLng, marker, icon, Map, polyline, Marker, map, latLngBounds, LatLngBounds } from 'leaflet';
 import { Subject, interval, timer, Subscription } from 'rxjs';
 import { filter, throttleTime, takeWhile } from 'rxjs/operators';
+import { BoundText } from '@angular/compiler/src/render3/r3_ast';
 
 @Component({
   selector: 'app-create-order',
@@ -33,8 +34,9 @@ export class CreateOrderComponent implements OnInit {
   MOVE_EVENT = 'mapMove';
 
   map: Map;
-  mapLayers: any[] = [];
+  mapLayers: Marker[] = [];
   mapPoint: LatLng;
+  mapPointMarker: Marker;
 
   mapOffice: LatLng;
 
@@ -131,13 +133,19 @@ export class CreateOrderComponent implements OnInit {
   }
 
   async getLocation() {
-    const g = await this.geolocation.getCurrentPosition();
     if (this.order.lat && this.order.lon) {
       this.mapCenter = latLng(this.order.lat, this.order.lon);
+      this.updateMapPoint(this.mapCenter);
     } else {
-      this.mapCenter = latLng(g.coords.latitude, g.coords.longitude);
+      this.geolocation.getCurrentPosition().then((g) => {
+        this.mapCenter = latLng(g.coords.latitude, g.coords.longitude);
+        this.updateMapPoint(this.mapCenter);
+      }).catch(() => {
+        this.mapCenter = latLng(this.options.center);
+        this.updateMapPoint(this.mapCenter);
+      });
     }
-    this.updateMapPoint(this.mapCenter);
+    this.zoomMarkers();
   }
 
   deleteOrder() {
@@ -185,15 +193,18 @@ export class CreateOrderComponent implements OnInit {
     this.order.lat = this.mapPoint.lat;
     this.order.lon = this.mapPoint.lng;
 
-    const layer = marker(this.mapPoint, {
-      icon: icon({
-        iconSize: [ 18, 29 ], // iconSize: [ 25, 41 ],
-        iconAnchor: [ 9, 29 ], // iconAnchor: [ 13, 41 ],
-        iconUrl: 'assets/leaflet/marker-icon.png',
-        shadowUrl: 'assets/leaflet/marker-shadow.png'
-      })
-    });
-    this.mapLayers[0] = layer;
+    if (typeof this.mapPointMarker === 'undefined') {
+      this.mapPointMarker = marker(this.mapPoint, {
+        icon: icon({
+          iconSize: [ 18, 29 ], // iconSize: [ 25, 41 ],
+          iconAnchor: [ 9, 29 ], // iconAnchor: [ 13, 41 ],
+          iconUrl: 'assets/leaflet/marker-icon.png',
+          shadowUrl: 'assets/leaflet/marker-shadow.png'
+        })
+      });
+      this.mapLayers.push(this.mapPointMarker);
+    }
+    this.mapPointMarker.setLatLng(this.mapPoint);
   }
 
   onMapReady(map: Map) {
@@ -233,7 +244,7 @@ export class CreateOrderComponent implements OnInit {
           shadowUrl: 'assets/leaflet/marker-shadow.png'
         })
       });
-      this.mapLayers[1] = layer;
+      this.mapLayers.push(layer);
     });
   }
 
@@ -250,22 +261,29 @@ export class CreateOrderComponent implements OnInit {
   }
 
   addDron() {
-    this.mapDronMarker = marker([0, 0], {
-      icon: icon({
-        iconSize: [ 48, 41 ],
-        iconAnchor: [ 24, 41 ],
-        iconUrl: 'assets/dron-icon.png',
-        shadowUrl: 'assets/leaflet/marker-shadow.png'
-      })
-    });
-    this.mapLayers[2] = this.mapDronMarker;
+    if (typeof this.mapDronMarker === 'undefined') {
+      this.mapDronMarker = marker([0, 0], {
+        icon: icon({
+          iconSize: [ 48, 41 ],
+          iconAnchor: [ 24, 41 ],
+          iconUrl: 'assets/dron-icon.png',
+          shadowUrl: 'assets/leaflet/marker-shadow.png'
+        })
+      });
+      this.mapDronMarker.setLatLng(this.options.center);
+      this.mapLayers.push(this.mapDronMarker);
+    }
   }
 
   removeDron() {
-    this.mapLayers.splice(2);
+    const dronIndex = this.mapLayers.indexOf(this.mapDronMarker);
+    if (dronIndex >= 0) {
+      this.mapLayers.splice(dronIndex);
+    }
   }
 
   startDron() {
+    this.zoomMarkers();
     return timer(1000, 1000).pipe(takeWhile(() => {
       if (this.mapPoint.equals(this.getCoordWithProgress())) {
         this.removeDron();
@@ -279,6 +297,18 @@ export class CreateOrderComponent implements OnInit {
         this.mapDronMarker.setLatLng(dron);
       }
     });
+  }
+
+  zoomMarkers() {
+    const bound = new LatLngBounds(this.options.center, this.options.center);
+    for (const marker of this.mapLayers) {
+      bound.extend(
+        marker.getLatLng()
+      );
+    }
+    if (typeof this.map !== 'undefined') {
+      this.map.fitBounds(bound);
+    }
   }
 
   getCoordWithProgress() {
